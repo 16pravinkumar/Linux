@@ -255,8 +255,6 @@ mindmap
 ---
 
 <div align="center">
-
-### ⭐ If this helped you, star the repo!
 *More notes coming as the Linux journey continues...* 🐧🚀
 
 </div>
