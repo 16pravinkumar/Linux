@@ -1,0 +1,403 @@
+Day 1
+
+```
+Linux-for-DevOps/
+│
+├── README.md
+├── Images/
+│
+├── 01-Introduction-to-Linux.md
+├── 02-Terminal-and-TTY.md
+├── 03-Shell.md
+├── 04-History-of-Linux.md
+├── 05-Linux-Distributions.md
+├── 06-Virtualization.md
+├── 07-Hypervisors.md
+├── 08-Oracle-VirtualBox.md
+├── 09-VirtualBox-Networking.md
+├── 10-File-Transfer.md
+├── 11-Kali-Linux.md
+└── Cheatsheets.md
+```
+
+---
+
+# Every chapter will look like this
+
+# What is Shell?
+
+---
+
+## Index
+
+* Definition
+* Why Shell is Needed
+* How Shell Works
+* Components
+* Real-Life Example
+* Computer Example
+* Diagram
+* Types of Shell
+* Commands
+* Interview Questions
+* Summary
+
+---
+
+# What is Shell?
+
+A Shell is a program that allows us to communicate with the Linux operating system.
+
+Think of the Shell as a **translator** between you and Linux.
+
+You type commands.
+
+The shell understands them.
+
+It tells Linux Kernel what to do.
+
+Linux performs the task.
+
+Finally, the shell shows you the result.
+
+---
+
+# Why do we need Shell?
+
+Imagine you are in a restaurant.
+
+```
+Customer
+   │
+   ▼
+Waiter
+   │
+   ▼
+Chef
+```
+
+The customer never goes inside the kitchen.
+
+The customer tells the waiter.
+
+The waiter tells the chef.
+
+The chef prepares the food.
+
+The waiter brings it back.
+
+---
+
+Linux works exactly the same way.
+
+```
+You
+ │
+ ▼
+Shell
+ │
+ ▼
+Linux Kernel
+ │
+ ▼
+Hardware
+```
+
+Without the shell, you cannot directly communicate with the kernel.
+
+---
+
+# Real Computer Example
+
+Suppose you type
+
+```
+mkdir Projects
+```
+
+Step 1
+
+You type the command.
+
+↓
+
+Step 2
+
+Shell receives it.
+
+↓
+
+Step 3
+
+Shell asks Kernel
+
+"Create a new directory."
+
+↓
+
+Step 4
+
+Kernel tells the storage device.
+
+↓
+
+Step 5
+
+Directory is created.
+
+↓
+
+Step 6
+
+Shell displays
+
+```
+$
+```
+
+meaning the command finished successfully.
+
+---
+
+# Internal Working
+
+```
++---------------------------+
+|        User               |
++---------------------------+
+             |
+             |
+             ▼
++---------------------------+
+|       Terminal            |
++---------------------------+
+             |
+             ▼
++---------------------------+
+|         Shell             |
++---------------------------+
+             |
+             ▼
++---------------------------+
+|      Linux Kernel         |
++---------------------------+
+             |
+      -----------------
+      |       |       |
+      ▼       ▼       ▼
+    CPU      RAM    Hard Disk
+```
+
+---
+
+# Real Life Scenario
+
+Imagine you own a company.
+
+Employees cannot directly talk to the CEO.
+
+```
+Employees
+
+↓
+
+Receptionist
+
+↓
+
+CEO
+
+↓
+
+Decision
+
+↓
+
+Receptionist
+
+↓
+
+Employees
+```
+
+The receptionist works exactly like a shell.
+
+---
+
+# Interview Questions
+
+### What is Shell?
+
+A shell is a command interpreter that acts as a bridge between the user and the Linux Kernel.
+
+---
+
+### Why is Shell required?
+
+Because users cannot directly communicate with the kernel.
+
+---
+
+### Can Linux work without a shell?
+
+Yes.
+
+Linux Kernel can work without a shell, but users cannot easily interact with it.
+
+---
+
+# Summary
+
+✔ Shell is an interface.
+
+✔ Shell interprets commands.
+
+✔ Shell communicates with Kernel.
+
+✔ Shell displays results.
+
+---
+
+Every topic will be documented like this.
+
+---
+
+## Diagrams will be much more professional
+
+Instead of plain text, diagrams like this:
+
+```
+                    Linux Operating System
+
+        +--------------------------------------+
+        |         User Applications            |
+        | Chrome | VS Code | Python | Docker   |
+        +--------------------------------------+
+
+                    ▲
+                    │
+        +--------------------------------------+
+        |              Shell                   |
+        | Bash | Zsh | Fish | Sh               |
+        +--------------------------------------+
+
+                    ▲
+                    │
+        +--------------------------------------+
+        |           Terminal Emulator          |
+        | GNOME | Konsole | Xterm              |
+        +--------------------------------------+
+
+                    ▲
+                    │
+        +--------------------------------------+
+        |           Linux Kernel               |
+        +--------------------------------------+
+
+                    ▲
+                    │
+      +------------------------------------------+
+      | CPU | RAM | SSD | Keyboard | Mouse | NIC |
+      +------------------------------------------+
+```
+
+---
+
+## Virtualization chapter
+
+It won't only define virtualization.
+
+It will explain
+
+* Why virtualization came into existence
+* Problems before virtualization
+* Benefits
+* Hypervisors
+* Type 1
+* Type 2
+* Virtual Machine
+* Host Machine
+* Guest Machine
+* CPU Sharing
+* RAM Sharing
+* Storage Sharing
+* Real company examples
+* VMware
+* Hyper-V
+* Oracle VirtualBox
+* Nutanix AHV
+* KVM
+
+with diagrams like
+
+```
+Without Virtualization
+
++----------------------+
+| Server 1 -> App A    |
++----------------------+
+
++----------------------+
+| Server 2 -> App B    |
++----------------------+
+
++----------------------+
+| Server 3 -> App C    |
++----------------------+
+
+High Cost
+Low Utilization
+```
+
+```
+With Virtualization
+
++--------------------------------------+
+|        Physical Server               |
+|                                      |
+|  Hypervisor                          |
+|   ├── VM1                            |
+|   ├── VM2                            |
+|   ├── VM3                            |
+|   └── VM4                            |
++--------------------------------------+
+
+Low Cost
+High Utilization
+Easy Backup
+```
+
+---
+
+## VirtualBox Networking
+
+It will include complete comparison tables like
+
+| Network Adapter | VM ↔ Host | VM ↔ VM | VM ↔ Internet | Internet ↔ VM | Use Case                        |
+| --------------- | --------- | ------- | ------------- | ------------- | ------------------------------- |
+| NAT             | ❌         | ❌       | ✅             | ❌             | Internet only                   |
+| NAT Network     | ❌         | ✅       | ✅             | ❌             | Multiple VMs with Internet      |
+| Bridged         | ✅         | ✅       | ✅             | ✅             | VM behaves like a real computer |
+| Host-only       | ✅         | ✅       | ❌             | ❌             | Lab Practice                    |
+| Internal        | ❌         | ✅       | ❌             | ❌             | Secure private lab              |
+| Generic Driver  | Depends   | Depends | Depends       | Depends       | Special networking              |
+
+Every row will also include diagrams showing exactly how packets travel.
+
+---
+
+## Kali Linux chapter
+
+It will explain
+
+* What Kali Linux is
+* Why developers usually don't use it daily
+* Why security engineers use it
+* How much DevOps engineers should know
+* Common tools
+* Ethical hacking basics
+* When to choose Ubuntu instead
+* Real-life scenarios
+
+---
+
