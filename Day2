@@ -1,0 +1,194 @@
+Before installing any software on Ubuntu, you can check whether it's available in the Ubuntu package repositories.
+
+Here are the most useful methods.
+
+---
+
+# Method 1: `apt search` (Most Common)
+
+Search for a package by name:
+
+```bash
+apt search nginx
+```
+
+Example output:
+
+```text
+Sorting... Done
+Full Text Search... Done
+
+nginx/jammy-updates 1.18.0-6ubuntu14.4 amd64
+  small, powerful, scalable web/proxy server
+```
+
+If you see the package listed, it exists in the configured Ubuntu repositories.
+
+---
+
+# Method 2: `apt show`
+
+To see detailed information about a package:
+
+```bash
+apt show nginx
+```
+
+Example output:
+
+```text
+Package: nginx
+Version: 1.18.0-6ubuntu14.4
+Priority: optional
+Section: web
+Maintainer: Ubuntu Developers
+Description:
+ small, powerful, scalable web server
+```
+
+If the package isn't available, you'll see something like:
+
+```text
+E: No packages found
+```
+
+---
+
+# Method 3: `apt-cache policy`
+
+This tells you whether the package is available and whether it's installed.
+
+```bash
+apt-cache policy nginx
+```
+
+Example:
+
+```text
+nginx:
+  Installed: (none)
+  Candidate: 1.18.0-6ubuntu14.4
+  Version table:
+     1.18.0-6ubuntu14.4 500
+```
+
+If **Candidate** has a version number, Ubuntu can install it.
+
+---
+
+# Method 4: Check if it's already installed
+
+```bash
+dpkg -l | grep nginx
+```
+
+or
+
+```bash
+which nginx
+```
+
+or
+
+```bash
+nginx -v
+```
+
+---
+
+# Why do we run `apt update` first?
+
+Before searching or installing packages, update your package lists:
+
+```bash
+sudo apt update
+```
+
+This downloads the latest package information from the configured repositories. Without it, your system may not know about newer packages or versions.
+
+---
+
+# How Ubuntu finds packages
+
+When you run:
+
+```bash
+apt search docker
+```
+
+Ubuntu **doesn't search the internet**. It searches the local package index that was downloaded when you last ran `sudo apt update`.
+
+The process looks like this:
+
+```text
+Ubuntu Repository
+        │
+        │  (sudo apt update)
+        ▼
+Local Package Index
+        │
+        │  (apt search nginx)
+        ▼
+Search Results
+```
+
+---
+
+# Example
+
+Suppose you want to know if **git** is available.
+
+1. Update the package list:
+
+```bash
+sudo apt update
+```
+
+2. Search:
+
+```bash
+apt search git
+```
+
+3. View details:
+
+```bash
+apt show git
+```
+
+4. Install it:
+
+```bash
+sudo apt install git
+```
+
+---
+
+# Summary
+
+| Command                                 | Purpose                                                        |
+| --------------------------------------- | -------------------------------------------------------------- |
+| `sudo apt update`                       | Download the latest package information                        |
+| `apt search <package>`                  | Search for packages by name or keyword                         |
+| `apt show <package>`                    | Show detailed information about a package                      |
+| `apt-cache policy <package>`            | Check availability, candidate version, and installation status |
+| `dpkg -l \| grep <package>`             | Check whether the package is already installed                 |
+| `which <command>`                       | Find the executable's location if installed                    |
+| `<command> --version` or `<command> -v` | Verify the installed program and its version                   |
+
+### Example workflow
+
+If you're unsure whether **Apache** is available:
+
+```bash
+sudo apt update
+apt search apache2
+apt show apache2
+apt-cache policy apache2
+```
+
+If `apt search` and `apt-cache policy` show the package, it's available in your configured Ubuntu repositories and can be installed with:
+
+```bash
+sudo apt install apache2
+```
