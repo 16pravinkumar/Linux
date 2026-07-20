@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS, Explained Like a Post Office</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --cream:#F7EFDD;
+  --paper:#FFFBF2;
+  --navy:#16303D;
+  --navy-2:#1F4356;
+  --ink:#241C14;
+  --stamp:#C1442D;
+  --stamp-dark:#9B3520;
+  --gold:#D3A24C;
+  --sage:#5F8567;
+  --line:rgba(22,48,61,0.18);
+  --shadow: 0 10px 30px rgba(22,48,61,0.12);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'Public Sans', sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{
+  font-family:'Fraunces', serif;
+  margin:0 0 .4em 0;
+  color:var(--navy);
+  letter-spacing:-0.01em;
+}
+code, .mono{
+  font-family:'JetBrains Mono', monospace;
+}
+.wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
+.eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--stamp);
+  font-weight:700;
+  display:inline-block;
+  margin-bottom:14px;
+}
+p{margin:0 0 1em 0;}
+.reveal{opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease;}
+.reveal.in-view{opacity:1; transform:translateY(0);}
+
+/* ---------- Postmark texture ---------- */
+.postmark-bg{
+  background-image:
+    radial-gradient(circle at 8% 20%, rgba(255,255,255,0.05) 0, transparent 40%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 26px);
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  background:radial-gradient(120% 140% at 20% -10%, var(--navy-2), var(--navy) 65%);
+  color:var(--cream);
+  padding:100px 0 90px;
+  position:relative;
+  overflow:hidden;
+}
+.hero .wrap{position:relative; z-index:2; display:flex; gap:56px; align-items:center; flex-wrap:wrap;}
+.hero-copy{flex:1 1 420px;}
+.hero h1{
+  color:#FBF3E0;
+  font-size:clamp(2.1rem, 4.4vw, 3.4rem);
+  line-height:1.06;
+}
+.hero h1 em{font-style:italic; color:var(--gold);}
+.hero p.lede{
+  color:rgba(251,243,224,0.82);
+  font-size:1.08rem;
+  max-width:480px;
+}
+.hero .eyebrow{color:var(--gold);}
+.stamp-hero{
+  flex:0 0 220px;
+  width:220px; height:220px;
+  position:relative;
+}
+.stamp-ring{
+  width:100%;height:100%;
+  border-radius:50%;
+  border:3px dashed rgba(251,243,224,0.55);
+  display:flex; align-items:center; justify-content:center;
+  animation:spin-slow 40s linear infinite;
+}
+.stamp-ring::before{
+  content:"";
+  position:absolute; inset:14px;
+  border-radius:50%;
+  border:1.5px solid rgba(251,243,224,0.28);
+}
+@keyframes spin-slow{ to{ transform:rotate(360deg);} }
+.stamp-core{
+  width:130px;height:130px;border-radius:50%;
+  background:var(--stamp);
+  display:flex;align-items:center;justify-content:center;
+  color:#FBF3E0;
+  box-shadow:0 14px 34px rgba(193,68,45,0.45);
+  animation:pop-in .8s cubic-bezier(.2,1.4,.4,1) .2s both;
+}
+.stamp-core svg{width:58px;height:58px;}
+@keyframes pop-in{ from{transform:scale(0) rotate(-25deg); opacity:0;} to{transform:scale(1) rotate(-12deg); opacity:1;} }
+
+/* ---------- SECTION shell ---------- */
+section{padding:78px 0;}
+.section-head{max-width:640px; margin-bottom:44px;}
+.section-head h2{font-size:clamp(1.6rem, 3vw, 2.2rem);}
+.section-head p{color:#4B4136; font-size:1.02rem;}
+
+/* ---------- WHY: phonebook analogy cards ---------- */
+.analogy-row{display:flex; gap:26px; flex-wrap:wrap; align-items:stretch;}
+.analogy-card{
+  flex:1 1 280px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:28px 26px;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.analogy-card .icon-badge{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--cream); margin-bottom:16px;
+}
+.analogy-card h3{font-size:1.15rem; margin-bottom:6px;}
+.analogy-flip{
+  margin-top:16px;
+  border-top:1px dashed var(--line);
+  padding-top:14px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:.82rem;
+}
+.pill{
+  background:var(--cream);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 12px;
+  font-weight:600;
+}
+.arrow-between{
+  display:flex; align-items:center; justify-content:center;
+  flex:0 0 50px; color:var(--stamp);
+}
+.arrow-between svg{width:30px;}
+
+/* ---------- HIERARCHY tree ---------- */
+.tree{
+  display:flex; flex-direction:column; align-items:center; gap:0;
+  margin-top:10px;
+}
+.tree-node{
+  background:var(--paper);
+  border:2px solid var(--navy);
+  border-radius:14px;
+  padding:14px 22px;
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  text-align:center;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.tree-node small{
+  display:block; font-family:'Public Sans',sans-serif; font-weight:500;
+  font-size:.75rem; color:#5c5346; margin-top:3px;
+}
+.tree-connector{width:2px; height:34px; background:var(--line);}
+.tree-row{display:flex; gap:20px; flex-wrap:wrap; justify-content:center;}
+.tree-row .tree-node{border-color:var(--sage);}
+.tree-row .tree-node:nth-child(3n+2){border-color:var(--gold);}
+.tree-row .tree-node:nth-child(3n+3){border-color:var(--stamp);}
+
+/* ---------- JOURNEY SIMULATOR ---------- */
+.journey-card{
+  background:var(--navy);
+  border-radius:24px;
+  color:var(--cream);
+  padding:40px 34px 46px;
+  box-shadow:var(--shadow);
+}
+.journey-controls{
+  display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:36px;
+}
+.journey-controls select, .journey-controls input[type=text]{
+  font-family:'JetBrains Mono', monospace;
+  background:rgba(251,243,224,0.08);
+  border:1px solid rgba(251,243,224,0.35);
+  color:var(--cream);
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:.92rem;
+}
+.journey-controls input[type=text]{width:190px;}
+.btn-send{
+  font-family:'JetBrains Mono', monospace;
+  background:var(--stamp);
+  color:#FBF3E0;
+  border:none;
+  padding:11px 22px;
+  border-radius:10px;
+  font-weight:700;
+  font-size:.9rem;
+  cursor:pointer;
+  transition:transform .15s ease, background .2s ease;
+}
+.btn-send:hover{background:var(--stamp-dark); transform:translateY(-1px);}
+.btn-send:active{transform:translateY(0);}
+.btn-send:disabled{opacity:.5; cursor:not-allowed; transform:none;}
+
+.track-wrap{
+  position:relative;
+  padding-top:10px;
+}
+.track{
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:30px 4px 0;
+}
+.track-line{
+  position:absolute;
+  top:52px; left:24px; right:24px;
+  height:2px;
+  background:rgba(251,243,224,0.2);
+  z-index:0;
+}
+.stop{
+  position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+  flex:1 1 0; min-width:70px;
+  text-align:center;
+}
+.stop-dot{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(251,243,224,0.08);
+  border:2px solid rgba(251,243,224,0.3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .35s ease;
+  color:rgba(251,243,224,0.65);
+}
+.stop-dot svg{width:20px;height:20px;}
+.stop-label{
+  font-size:.68rem;
+  margin-top:8px;
+  font-family:'JetBrains Mono', monospace;
+  color:rgba(251,243,224,0.55);
+  line-height:1.3;
+}
+.stop.visited .stop-dot{
+  background:var(--sage);
+  border-color:var(--sage);
+  color:#fff;
+}
+.stop.active .stop-dot{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--navy);
+  transform:scale(1.14);
+  box-shadow:0 0 0 6px rgba(211,162,76,0.22);
+}
+.stop.active .stop-label, .stop.visited .stop-label{color:var(--cream);}
+
+.envelope{
+  position:absolute; top:0; left:0;
+  width:46px; height:34px;
+  transition:transform .65s cubic-bezier(.5,0,.2,1);
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+  z-index:2;
+  opacity:0;
+}
+.envelope.flying{opacity:1;}
+
+.bubble{
+  margin-top:30px;
+  min-height:64px;
+  background:rgba(251,243,224,0.07);
+  border:1px solid rgba(251,243,224,0.22);
+  border-radius:14px;
+  padding:16px 18px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:.88rem;
+  color:#F3E9D3;
+  transition:opacity .3s ease;
+}
+.bubble .who{color:var(--gold); font-weight:700;}
+
+.delivery-card{
+  margin-top:22px;
+  background:var(--cream);
+  color:var(--ink);
+  border-radius:14px;
+  padding:20px 22px;
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.delivery-card.show{display:flex;}
+.delivery-card .seal{
+  display:flex; align-items:center; gap:10px;
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  color:var(--sage);
+  border:2px solid var(--sage);
+  border-radius:999px;
+  padding:6px 14px;
+  transform:rotate(-4deg);
+}
+.delivery-ip{font-family:'JetBrains Mono', monospace; font-size:1.15rem; font-weight:700;}
+
+/* ---------- RECORD FLIP CARDS ---------- */
+.record-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(210px,1fr));
+  gap:18px;
+}
+.flip-card{
+  perspective:1200px;
+  height:190px;
+  cursor:pointer;
+}
+.flip-inner{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.5,0,.2,1);
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{
+  position:absolute; inset:0;
+  backface-visibility:hidden;
+  border-radius:16px;
+  padding:20px;
+  display:flex; flex-direction:column;
+  box-shadow:var(--shadow);
+}
+.flip-front{
+  background:var(--paper);
+  border:1px solid var(--line);
+  justify-content:space-between;
+}
+.flip-front .rec-tag{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  font-size:1.5rem;
+  color:var(--navy);
+}
+.flip-front .rec-name{font-size:.85rem; color:#5c5346;}
+.flip-front .tap-hint{font-size:.68rem; color:var(--stamp); font-family:'JetBrains Mono', monospace;}
+.flip-back{
+  background:var(--navy);
+  color:var(--cream);
+  transform:rotateY(180deg);
+  font-size:.82rem;
+  justify-content:center;
+  gap:8px;
+}
+.flip-back .example{
+  font-family:'JetBrains Mono', monospace;
+  background:rgba(251,243,224,0.1);
+  border-radius:8px;
+  padding:6px 9px;
+  font-size:.75rem;
+}
+.flip-back .life{color:var(--gold); font-weight:600; font-size:.75rem;}
+
+/* ---------- ZONE FILE ---------- */
+.zone-block{
+  background:var(--ink);
+  color:#EFE6D3;
+  border-radius:16px;
+  padding:26px 24px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:.86rem;
+  overflow-x:auto;
+  box-shadow:var(--shadow);
+}
+.zone-block .zline{padding:3px 0; white-space:pre;}
+.zone-block .tag{color:var(--gold);}
+.zone-block .val{color:#8FC29A;}
+.zone-note{
+  margin-top:16px;
+  font-size:.86rem;
+  color:#4B4136;
+}
+
+/* ---------- DoH/DoT toggle ---------- */
+.toggle-row{display:flex; gap:0; background:var(--paper); border:1px solid var(--line); border-radius:999px; width:fit-content; padding:4px; margin-bottom:22px;}
+.toggle-btn{
+  border:none; background:transparent; padding:9px 22px; border-radius:999px;
+  font-family:'JetBrains Mono', monospace; font-weight:700; font-size:.85rem; cursor:pointer;
+  color:#5c5346;
+  transition:all .25s ease;
+}
+.toggle-btn.active{background:var(--navy); color:var(--cream);}
+.enc-panel{display:none; background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow:var(--shadow);}
+.enc-panel.show{display:block; animation:fade-in .4s ease;}
+@keyframes fade-in{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+.enc-panel .port{
+  display:inline-block; margin-top:8px;
+  font-family:'JetBrains Mono', monospace;
+  background:var(--navy); color:var(--cream);
+  padding:4px 12px; border-radius:999px; font-size:.78rem;
+}
+
+/* ---------- Twingate aside ---------- */
+.aside-box{
+  border:1.5px dashed var(--line);
+  border-radius:16px;
+  padding:22px 24px;
+  display:flex; gap:16px; align-items:flex-start;
+  background:rgba(255,255,255,0.5);
+}
+.aside-box .icon-badge{
+  width:44px;height:44px; border-radius:50%;
+  background:var(--gold); color:var(--navy);
+  display:flex; align-items:center; justify-content:center; flex:0 0 44px;
+}
+.aside-box h3{font-size:1.05rem; margin-bottom:6px;}
+.aside-box p{font-size:.92rem; color:#4B4136; margin-bottom:0;}
+
+/* ---------- Footer ---------- */
+footer{
+  background:var(--navy);
+  color:rgba(251,243,224,0.7);
+  padding:40px 0;
+  text-align:center;
+  font-size:.85rem;
+}
+footer strong{color:var(--gold);}
+
+@media (max-width:640px){
+  .track{flex-wrap:wrap; row-gap:26px;}
+  .track-line{display:none;}
+  .stop{flex:1 1 30%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero postmark-bg">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">A beginner's field guide</span>
+      <h1>DNS is the internet's <em>post office.</em></h1>
+      <p class="lede">You write a name on the envelope. Somewhere behind the scenes, a chain of sorting offices figures out the exact address and gets your letter delivered. This guide walks through that whole journey — interactively.</p>
+    </div>
+    <div class="stamp-hero">
+      <div class="stamp-ring">
+        <div class="stamp-core">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= WHY DNS ================= -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Why it exists</span>
+      <h2>Names are for people. Numbers are for machines.</h2>
+      <p>You don't memorize your friend's phone number — you save their name. Your phone does the lookup. The internet works exactly the same way, just with servers instead of a contacts app.</p>
+    </div>
+    <div class="analogy-row reveal">
+      <div class="analogy-card">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M12 18h.01"/></svg>
+        </div>
+        <h3>Calling a friend</h3>
+        <p style="font-size:.92rem; color:#4B4136;">You tap "Rahul." Your phone silently looks up the real number and dials it.</p>
+        <div class="analogy-flip"><span class="pill">Rahul</span><span class="pill">+91 98765 43210</span></div>
+      </div>
+      <div class="arrow-between">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="analogy-card">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 0 1 0 18 13 13 0 0 1 0-18z"/></svg>
+        </div>
+        <h3>Visiting a website</h3>
+        <p style="font-size:.92rem; color:#4B4136;">You type "google.com." Your browser silently looks up the real IP address and connects.</p>
+        <div class="analogy-flip"><span class="pill">google.com</span><span class="pill">142.250.183.14</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HIERARCHY ================= -->
+<section style="background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">The org chart</span>
+      <h2>No single server knows everything</h2>
+      <p>Ten billion websites can't live on one machine. So DNS is split into layers — like a postal system with a national office, regional depots, and local branches — where each layer only knows a small slice of the map.</p>
+    </div>
+    <div class="tree reveal">
+      <div class="tree-node">ROOT ( . )<small>knows who runs each extension</small></div>
+      <div class="tree-connector"></div>
+      <div class="tree-row">
+        <div class="tree-node">.com<small>TLD server</small></div>
+        <div class="tree-node">.org<small>TLD server</small></div>
+        <div class="tree-node">.in<small>TLD server</small></div>
+      </div>
+      <div class="tree-connector"></div>
+      <div class="tree-node" style="border-color:var(--navy);">google.com<small>authoritative — has the actual IP</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= JOURNEY SIMULATOR ================= -->
+<section id="journey">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Try it yourself</span>
+      <h2>Send a letter, watch it get routed</h2>
+      <p>Pick a domain (or type your own) and hit send. The envelope will travel through every stop a real DNS lookup makes — cache, resolver, root, TLD, and finally the authoritative server that holds the answer.</p>
+    </div>
+
+    <div class="journey-card reveal">
+      <div class="journey-controls">
+        <select id="domainSelect">
+          <option value="google.com">google.com</option>
+          <option value="github.com">github.com</option>
+          <option value="wikipedia.org">wikipedia.org</option>
+          <option value="__custom__">Type my own…</option>
+        </select>
+        <input type="text" id="customDomain" placeholder="yourdomain.com" style="display:none;">
+        <button class="btn-send" id="sendBtn">Send the letter →</button>
+      </div>
+
+      <div class="track-wrap">
+        <div class="track" id="track">
+          <div class="track-line"></div>
+          <div class="stop" data-i="0">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg></div>
+            <div class="stop-label">You</div>
+          </div>
+          <div class="stop" data-i="1">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg></div>
+            <div class="stop-label">Local<br>cache</div>
+          </div>
+          <div class="stop" data-i="2">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a9 9 0 1 0 0 8"/><path d="M14 12h7M18 8l3 4-3 4"/></svg></div>
+            <div class="stop-label">Resolver</div>
+          </div>
+          <div class="stop" data-i="3">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 0 1 0 18 13 13 0 0 1 0-18z"/></svg></div>
+            <div class="stop-label">Root<br>server</div>
+          </div>
+          <div class="stop" data-i="4">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/></svg></div>
+            <div class="stop-label">.com<br>TLD</div>
+          </div>
+          <div class="stop" data-i="5">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 8h6M9 12h6M9 16h2"/></svg></div>
+            <div class="stop-label">Authoritative<br>server</div>
+          </div>
+          <div class="stop" data-i="6">
+            <div class="stop-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stop-label">Delivered</div>
+          </div>
+        </div>
+        <svg class="envelope" id="envelope" viewBox="0 0 46 34" fill="none">
+          <rect x="1" y="1" width="44" height="32" rx="3" fill="#FBF3E0" stroke="#16303D" stroke-width="2"/>
+          <path d="M2 3l21 15L44 3" stroke="#16303D" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="bubble" id="bubble"><span class="who">Ready:</span> pick a domain above and press send.</div>
+
+      <div class="delivery-card" id="deliveryCard">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:.78rem; color:#5c5346;">DELIVERY CONFIRMED FOR</div>
+          <div class="delivery-ip"><span id="deliveredDomain"></span> → <span id="deliveredIp"></span></div>
+        </div>
+        <div class="seal">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          DELIVERED
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RECORD TYPES ================= -->
+<section style="background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">The phonebook entries</span>
+      <h2>Every domain keeps a stack of record cards</h2>
+      <p>Tap a card to flip it. Each record type answers a different question about a domain — an address, an alias, a mail route, or just a note.</p>
+    </div>
+    <div class="record-grid reveal" id="recordGrid"></div>
+  </div>
+</section>
+
+<!-- ================= ZONE FILE ================= -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Where the cards live</span>
+      <h2>The zone file</h2>
+      <p>All of a domain's records sit together in one plain-text file called a <strong>zone file</strong> — think of it as the domain's full index card, kept at the authoritative server.</p>
+    </div>
+    <div class="zone-block reveal">
+<div class="zline"><span class="tag">example.com.</span>     IN A     <span class="val">192.0.2.10</span></div>
+<div class="zline">www              IN CNAME <span class="val">example.com.</span></div>
+<div class="zline">mail             IN A     <span class="val">192.0.2.20</span></div>
+<div class="zline"><span class="tag">example.com.</span>     IN MX 10 <span class="val">mail.example.com.</span></div>
+<div class="zline"><span class="tag">example.com.</span>     IN TXT   <span class="val">"v=spf1 include:_spf.example.com ~all"</span></div>
+    </div>
+    <p class="zone-note reveal">Each line is one record: a name, a type, and a value — exactly like the flip cards above.</p>
+  </div>
+</section>
+
+<!-- ================= DoH / DoT ================= -->
+<section style="background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Keeping the envelope sealed</span>
+      <h2>DoH vs. DoT</h2>
+      <p>Plain DNS queries travel like a postcard — anyone along the way can read them. These two approaches put the postcard in a sealed envelope instead.</p>
+    </div>
+    <div class="reveal">
+      <div class="toggle-row">
+        <button class="toggle-btn active" data-panel="doh">DNS over HTTPS</button>
+        <button class="toggle-btn" data-panel="dot">DNS over TLS</button>
+      </div>
+      <div class="enc-panel show" id="panel-doh">
+        <h3 style="margin-bottom:6px;">DoH — DNS over HTTPS</h3>
+        <p>Your DNS request rides inside normal encrypted web traffic, so it blends in with everything else your browser sends.</p>
+        <span class="port">Port 443 · looks like regular HTTPS traffic</span>
+      </div>
+      <div class="enc-panel" id="panel-dot">
+        <h3 style="margin-bottom:6px;">DoT — DNS over TLS</h3>
+        <p>Your DNS request gets its own dedicated encrypted channel, separate from web traffic — easier for a network admin to identify and manage.</p>
+        <span class="port">Port 853 · dedicated DNS channel</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TWINGATE ASIDE ================= -->
+<section>
+  <div class="wrap">
+    <div class="aside-box reveal">
+      <div class="icon-badge">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/></svg>
+      </div>
+      <div>
+        <h3>Quick aside: Twingate isn't a DNS server</h3>
+        <p>It's a Zero Trust access tool. Instead of handing an employee the keys to the whole office (like a VPN), it checks who they are and unlocks only the one room — er, application — they're allowed into. Different job entirely, easy to mix up because it also sits "in the middle" of a connection.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SUMMARY ================= -->
+<section style="background:var(--navy); color:var(--cream);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow" style="color:var(--gold);">Recap</span>
+      <h2 style="color:#FBF3E0;">The full route, one more time</h2>
+      <p style="color:rgba(251,243,224,0.75);">You → cache → resolver → root → TLD → authoritative server → your browser, connected. Once this sticks, the next concepts fall into place fast: caching and TTL, split-horizon DNS, load balancing, and managed services like Route 53, Azure DNS, or Google Cloud DNS.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Made as a beginner-friendly walkthrough of DNS · scroll back up and try the simulator with a domain of your own</div>
+</footer>
+
+<script>
+// ---------- Scroll reveal ----------
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+  });
+},{threshold:0.12});
+revealEls.forEach(el=>io.observe(el));
+
+// ---------- Record flip cards ----------
+const records = [
+  {tag:'A', name:'Address (IPv4)', example:'example.com → 192.168.1.10', life:'Like a home street address.'},
+  {tag:'AAAA', name:'Address (IPv6)', example:'example.com → 2404:6800:4003::200e', life:'The newer, longer version of a street address.'},
+  {tag:'CNAME', name:'Alias', example:'www.google.com → google.com', life:'Like a nickname that points to your real name.'},
+  {tag:'MX', name:'Mail Exchange', example:'gmail.com → mail server', life:"The building's mailroom for incoming letters."},
+  {tag:'NS', name:'Name Server', example:'google.com → ns1.google.com', life:'The office that manages this address for you.'},
+  {tag:'PTR', name:'Reverse lookup', example:'142.250.183.14 → google.com', life:'Caller ID, but for IP addresses.'},
+  {tag:'TXT', name:'Text note', example:'v=spf1 include:_spf.google.com ~all', life:'A sticky note proving who owns the mailbox.'},
+];
+const grid = document.getElementById('recordGrid');
+records.forEach(r=>{
+  const card = document.createElement('div');
+  card.className = 'flip-card';
+  card.innerHTML = `
+    <div class="flip-inner">
+      <div class="flip-face flip-front">
+        <div class="rec-tag">${r.tag}</div>
+        <div>
+          <div class="rec-name">${r.name}</div>
+          <div class="tap-hint">tap to flip →</div>
+        </div>
+      </div>
+      <div class="flip-face flip-back">
+        <div class="example">${r.example}</div>
+        <div class="life">${r.life}</div>
+      </div>
+    </div>`;
+  card.addEventListener('click', ()=>card.classList.toggle('flipped'));
+  grid.appendChild(card);
+});
+
+// ---------- DoH / DoT toggle ----------
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.enc-panel').forEach(p=>p.classList.remove('show'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('show');
+  });
+});
+
+// ---------- Journey simulator ----------
+const domainSelect = document.getElementById('domainSelect');
+const customDomain = document.getElementById('customDomain');
+domainSelect.addEventListener('change', ()=>{
+  customDomain.style.display = domainSelect.value === '__custom__' ? 'inline-block' : 'none';
+});
+
+const mockIPs = {'google.com':'142.250.183.14','github.com':'140.82.121.4','wikipedia.org':'208.80.154.224'};
+function fakeIpFor(name){
+  let h = 0;
+  for(let i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+  return `${(h)%223+1}.${(h>>8)%255}.${(h>>16)%255}.${(h>>24)%255}`;
+}
+
+const stopEls = Array.from(document.querySelectorAll('.stop'));
+const envelope = document.getElementById('envelope');
+const track = document.getElementById('track');
+const bubble = document.getElementById('bubble');
+const deliveryCard = document.getElementById('deliveryCard');
+const sendBtn = document.getElementById('sendBtn');
+
+function scriptFor(domain){
+  return [
+    {who:'You', text:`Typing "${domain}" into the address bar and hitting enter.`},
+    {who:'Local cache', text:`Checking if this browser already remembers ${domain}… not this time.`},
+    {who:'Resolver', text:`Your ISP or public resolver takes over: "Let me go find this address for you."`},
+    {who:'Root server', text:`"I don't know ${domain}, but I know who runs its extension. Ask the TLD office."`},
+    {who:'.com TLD server', text:`"I don't have the exact address either — ask ${domain}'s own name servers."`},
+    {who:'Authoritative server', text:`"Here's the answer: ${domain} lives at this IP address."`},
+    {who:'Delivered', text:`The resolver hands the IP back to your browser, which connects instantly.`},
+  ];
+}
+
+function moveEnvelopeTo(stopEl){
+  const trackRect = track.getBoundingClientRect();
+  const stopRect = stopEl.getBoundingClientRect();
+  const x = stopRect.left - trackRect.left + stopRect.width/2 - envelope.offsetWidth/2;
+  const y = stopRect.top - trackRect.top + stopRect.height/2 - envelope.offsetHeight/2 - 40;
+  envelope.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function resetJourney(){
+  stopEls.forEach(s=>s.classList.remove('active','visited'));
+  deliveryCard.classList.remove('show');
+  envelope.classList.remove('flying');
+}
+
+async function runJourney(){
+  const domain = domainSelect.value === '__custom__'
+    ? (customDomain.value.trim() || 'example.com')
+    : domainSelect.value;
+
+  sendBtn.disabled = true;
+  resetJourney();
+  const script = scriptFor(domain);
+  envelope.classList.add('flying');
+  moveEnvelopeTo(stopEls[0]);
+  await new Promise(r=>setTimeout(r, 150));
+
+  for(let i=0;i<stopEls.length;i++){
+    stopEls.forEach((s,idx)=>{
+      s.classList.toggle('active', idx===i);
+      if(idx<i) s.classList.add('visited');
+    });
+    moveEnvelopeTo(stopEls[i]);
+    bubble.innerHTML = `<span class="who">${script[i].who}:</span> ${script[i].text}`;
+    await new Promise(r=>setTimeout(r, 950));
+  }
+  stopEls.forEach(s=>s.classList.add('visited'));
+
+  const ip = mockIPs[domain] || fakeIpFor(domain);
+  document.getElementById('deliveredDomain').textContent = domain;
+  document.getElementById('deliveredIp').textContent = ip;
+  deliveryCard.classList.add('show');
+  sendBtn.disabled = false;
+}
+
+sendBtn.addEventListener('click', runJourney);
+window.addEventListener('resize', ()=>{
+  const activeIdx = stopEls.findIndex(s=>s.classList.contains('active'));
+  if(activeIdx>=0) moveEnvelopeTo(stopEls[activeIdx]);
+});
+</script>
+</body>
+</html>
