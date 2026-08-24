@@ -1,0 +1,2 @@
+Summary
+Congratulations! You have successfully completed the "Display User and Group Information" challenge. By using whoami and id, you learned how to check which user is currently logged in and how to inspect the account's uid, primary gid, and supplementary groups. These checks are useful when verifying permissions, troubleshooting access problems, and confirming the execution context of scripts or services. To explore these commands further, you can review their manual pages with man whoami and man id.
